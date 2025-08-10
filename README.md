@@ -47,7 +47,7 @@ Your CSV (`nrct.csv`) should contain at least the following columns:
 
 | الاسم كامل كما ترغب أن يكون في الشهادة | الوظيفة  كما ترغب أن تكتب بالشهادة | Gmail                                          |
 | -------------------------------------- | ---------------------------------- | ---------------------------------------------- |
-| أحمد محمد علي                          | أستاذ الأدب العربي                 | [example@gmail.com](mailto\:example@gmail.com) |
+| احمد محمد منصور                          | مبرمج                 | [mans012033945420@gmail.com](mailto:mans012033945420@gmail.com) |
 
 ---
 
@@ -80,7 +80,7 @@ For security, you should store your Gmail credentials in environment variables i
 Run the script:
 
 ```bash
-uv run main.py
+
 ```
 
 The script will:
