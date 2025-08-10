@@ -7,24 +7,35 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
+import arabic_reshaper
+from bidi.algorithm import get_display
+
+# ---------------------------
+# Arabic text preparation
+# ---------------------------
+def prepare_arabic_text(text):
+    reshaped_text = arabic_reshaper.reshape(text)  # Connect letters
+    bidi_text = get_display(reshaped_text)         # Correct RTL order
+    return bidi_text
 
 # Load the CSV file
-csv_path = 'csv/nrct.csv'  # Update with the correct CSV file path
+csv_path = 'csv/nrct.csv'
 data = pd.read_csv(csv_path)
 
 # Certificate settings
-certificate_template = 'imgs/nrct_certificate_temp.png'  # Path to your certificate image template
+certificate_template = 'imgs/nrct_certificate_temp.png'
 output_folder = 'certificates'
-font_path = 'fonts/Rubik-Bold.ttf'  # Update with your font file path
+# font_path = 'fonts/Rubik-Bold.ttf'
+font_path = 'fonts/NotoNaskhArabic-Bold.ttf'  # new Arabic-supporting font
 
 # Event details
-event_title = 'الملتقي القومي الدولي الثالث بعنوان'  # Update as needed
-event_name = '"الشعر الفكاهي دراسات ونماذج "'  # Update as needed
-event_date = " 28 يناير 2025"  # Update as needed
+event_title = 'الملتقي القومي الدولي الثالث بعنوان'
+event_name = '"الشعر الفكاهي دراسات ونماذج "'
+event_date = " 28 يناير 2025"
 
 # Gmail account credentials
-gmail_user = 'your_email@gmail.com'  # Replace with your Gmail address
-gmail_password = 'your_app_password'  # Replace with your Gmail App Password
+gmail_user = 'your_email@gmail.com'
+gmail_password = 'your_app_password'
 
 # Create output folder if not exists
 os.makedirs(output_folder, exist_ok=True)
@@ -47,14 +58,11 @@ def draw_centered_text(draw, text, font, fill, center_position, max_width):
 
 # Function to create a certificate
 def create_certificate(name, job, event_title, event_name, event_date, output_path):
-    # Load the certificate template
     image = Image.open(certificate_template)
     draw = ImageDraw.Draw(image)
     
-    # Calculate the image center
     image_center = (image.width // 2, image.height // 2)
     
-    # Define offsets for text positioning relative to the image center
     name_offset = -110
     job_offset = -40
     event_title_offset = 70
@@ -63,30 +71,25 @@ def create_certificate(name, job, event_title, event_name, event_date, output_pa
 
     wrap_max = 70
     
-    # Draw centered text at calculated positions
-    draw_centered_text(draw, name, name_font, "black", (image_center[0], image_center[1] + name_offset), wrap_max)
-    draw_centered_text(draw, job, details_font, "black", (image_center[0], image_center[1] + job_offset), wrap_max)
-    draw_centered_text(draw, event_title, event_font, "black", (image_center[0], image_center[1] + event_title_offset), wrap_max)
-    draw_centered_text(draw, event_name, event_font, "black", (image_center[0], image_center[1] + event_name_offset), wrap_max)
-    draw_centered_text(draw, event_date, date_font, "black", (image_center[0], image_center[1] + date_offset), wrap_max)
+    draw_centered_text(draw, prepare_arabic_text(name), name_font, "black", (image_center[0], image_center[1] + name_offset), wrap_max)
+    draw_centered_text(draw, prepare_arabic_text(job), details_font, "black", (image_center[0], image_center[1] + job_offset), wrap_max)
+    draw_centered_text(draw, prepare_arabic_text(event_title), event_font, "black", (image_center[0], image_center[1] + event_title_offset), wrap_max)
+    draw_centered_text(draw, prepare_arabic_text(event_name), event_font, "black", (image_center[0], image_center[1] + event_name_offset), wrap_max)
+    draw_centered_text(draw, prepare_arabic_text(event_date), date_font, "black", (image_center[0], image_center[1] + date_offset), wrap_max)
     
-    # Save the certificate
     image.save(output_path)
 
 # Function to send email with PDF attachment
 def send_email(recipient_email, recipient_name, job_title, pdf_path):
     try:
-        # Create a multipart message
         message = MIMEMultipart()
         message['From'] = gmail_user
         message['To'] = recipient_email
         message['Subject'] = "Certificate of Participation"
         
-        # Email body
         body = f"Dear {recipient_name},\n\nWe are pleased to send you your certificate for participating as a {job_title} in our event. Please find your certificate attached.\n\nBest regards,\nEvent Team"
         message.attach(MIMEText(body, 'plain'))
         
-        # Attach the PDF
         with open(pdf_path, 'rb') as attachment:
             part = MIMEBase('application', 'octet-stream')
             part.set_payload(attachment.read())
@@ -97,7 +100,6 @@ def send_email(recipient_email, recipient_name, job_title, pdf_path):
         )
         message.attach(part)
         
-        # Connect to Gmail SMTP server and send email
         with smtplib.SMTP('smtp.gmail.com', 587) as server:
             server.starttls()
             server.login(gmail_user, gmail_password)
@@ -109,9 +111,9 @@ def send_email(recipient_email, recipient_name, job_title, pdf_path):
 # Generate certificates and send emails
 total = len(data)
 for index, row in data.iterrows():
-    name = row.get('الاسم كامل كما ترغب أن يكون في الشهادة', 'Participant')  # Replace with the actual column name
-    job = row.get('الوظيفة  كما ترغب أن تكتب بالشهادة', 'Unknown')       # Replace with the actual column name
-    email = row.get('Gmail', None)  # Replace with the actual column name for emails
+    name = row.get('الاسم كامل كما ترغب أن يكون في الشهادة', 'Participant')
+    job = row.get('الوظيفة  كما ترغب أن تكتب بالشهادة', 'Unknown')
+    email = row.get('Gmail', None)
     
     if email:
         pdf_path = os.path.join(output_folder, f'{name}.pdf')
@@ -124,8 +126,6 @@ for index, row in data.iterrows():
             pdf_path
         )
         send_email(email, name, job, pdf_path)
-        # Print progress
         print(f"Certificates created and email sent: {index + 1}/{total}", end="\r")
 
 print("\nAll certificates created and emails sent successfully!")
-
