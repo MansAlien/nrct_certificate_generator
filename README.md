@@ -80,7 +80,7 @@ For security, you should store your Gmail credentials in environment variables i
 Run the script:
 
 ```bash
-python script.py
+uv run main.py
 ```
 
 The script will:
