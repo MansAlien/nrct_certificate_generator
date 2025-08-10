@@ -23,8 +23,8 @@ event_name = '"الشعر الفكاهي دراسات ونماذج "'  # Update 
 event_date = " 28 يناير 2025"  # Update as needed
 
 # Gmail account credentials
-gmail_user = ''  # Replace with your Gmail address
-gmail_password = ''  # Replace with your Gmail App Password
+gmail_user = 'your_email@gmail.com'  # Replace with your Gmail address
+gmail_password = 'your_app_password'  # Replace with your Gmail App Password
 
 # Create output folder if not exists
 os.makedirs(output_folder, exist_ok=True)
