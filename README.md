@@ -53,7 +53,7 @@ Your CSV (`nrct.csv`) should contain at least the following columns:
 
 ## ⚙️ Configuration
 
-Before running the script, update these variables in `script.py`:
+Before running the script, update these variables in `main.py`:
 
 ```python
 # Certificate template and font
@@ -80,7 +80,7 @@ For security, you should store your Gmail credentials in environment variables i
 Run the script:
 
 ```bash
-
+uv run main.py
 ```
 
 The script will:
